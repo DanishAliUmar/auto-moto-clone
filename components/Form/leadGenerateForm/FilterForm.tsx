@@ -10,35 +10,49 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useFetchPost } from "@/Hooks/useFetch";
-import {getLocalItem} from "@/Hooks/useLocalStorage";
-const localWebhook_url =getLocalItem('webhook_url')
-const createFilterUrl = `http://127.0.0.1:8000/webhook/api/v1/create-filter`;
+import useLocalStorage from "@/Hooks/useLocalStorage";
+const createFilterUrl = `http://18.221.246.228:9000/webhook/api/v1/create-filter`;
 
 const FilterForm: React.FC = ({
   conditions,
   setConditions,
   orConditions,
   setOrConditions,
+  
 }) => {
-
   const { data, loading, error, postData } = useFetchPost<{
     success: boolean;
     message: string;
   }>(createFilterUrl);
 
+  const [webhookUrl, , getLocalItem] = useLocalStorage("webhook_url");
+  const localWebhook_url = getLocalItem("webhook_detail");
+
   const handleSubmit = () => {
     postData({
-      webhoook_id: localWebhook_url,
-      webhook_filters: [...conditions, ...orConditions}]
-      });
+      webhook_id: localWebhook_url?.webhook_id,
+      webhook_filters: [...conditions, ...orConditions],
+    });
   };
 
   const handleAddCondition = () => {
-    setConditions([...conditions, { field: "", condition: "", text: "", "is_and": true,"is_or": false }]);
+    setConditions([
+      ...conditions,
+      {
+        key: "",
+        value: "",
+        operator: "",
+        is_and: true,
+        is_or: false,
+      },
+    ]);
   };
 
   const handleOrCondition = () => {
-    setOrConditions([...orConditions, { field: "", condition: "", text: "", "is_and": false,"is_or": true }]);
+    setOrConditions([
+      ...orConditions,
+      { key: "", operator: "", value: "", is_and: false, is_or: true },
+    ]);
   };
 
   const handleRemoveCondition = (index: number) => {
@@ -71,7 +85,7 @@ const FilterForm: React.FC = ({
   const handleSelectChange = (
     newValue: string,
     index: number,
-    fieldName: "field" | "condition",
+    fieldName: "key" | "operator",
     setConditionType: "conditions" | "orConditions"
   ) => {
     const updatedConditions =
@@ -106,40 +120,48 @@ const FilterForm: React.FC = ({
                 </button>
               )}
             </div>
+            <Input
+              type="text"
+              name="key"
+              onChange={(e) => handleChange(e, index, "conditions")}
+              placeholder="Enter key ..."
+              value={condition.key || ""}
+              id={`text-${index}`}
+            />
             <Select
-              value={condition.field || ""}
+              value={condition.operator || ""}
               onValueChange={(value) =>
-                handleSelectChange(value, index, "field", "conditions")
-              }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Choose field..." />
-              </SelectTrigger>
-              <SelectContent className="min-w-full">
-                <SelectItem value="field1">Field 1</SelectItem>
-                <SelectItem value="field2">Field 2</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select
-              value={condition.condition || ""}
-              onValueChange={(value) =>
-                handleSelectChange(value, index, "condition", "conditions")
+                handleSelectChange(value, index, "operator", "conditions")
               }
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Choose condition..." />
               </SelectTrigger>
               <SelectContent className="min-w-full">
-                <SelectItem value="equals">Equals</SelectItem>
+                <SelectItem value="does_not_contain" selected>
+                  Does Not Contain
+                </SelectItem>
                 <SelectItem value="contains">Contains</SelectItem>
+                <SelectItem value="start_with">Start With</SelectItem>
+                <SelectItem value="not_start_with">Not Start With</SelectItem>
+                <SelectItem value="ends_with">Ends With</SelectItem>
+                <SelectItem value="greater">Greater</SelectItem>
+                <SelectItem value="less">Less</SelectItem>
+                <SelectItem value="after">After</SelectItem>
+                <SelectItem value="before">Before</SelectItem>
+                <SelectItem value="equals">Equals</SelectItem>
+                <SelectItem value="is_true">Is True</SelectItem>
+                <SelectItem value="is_false">Is False</SelectItem>
+                <SelectItem value="does_not_exist">Does Not Exist</SelectItem>
+                <SelectItem value="exists">Exists</SelectItem>
               </SelectContent>
             </Select>
             <Input
               type="text"
-              name="text"
+              name="value"
               onChange={(e) => handleChange(e, index, "conditions")}
               placeholder="Enter Text ..."
-              value={condition.text || ""}
+              value={condition.value || ""}
               id={`text-${index}`}
             />
           </div>
@@ -171,40 +193,48 @@ const FilterForm: React.FC = ({
               </button>
               {/* )} */}
             </div>
+            <Input
+              type="text"
+              name="key"
+              onChange={(e) => handleChange(e, index, "orConditions")}
+              placeholder="Enter Key ..."
+              value={condition.key || ""}
+              id={`text-or-${index}`}
+            />
             <Select
-              value={condition.field || ""}
+              value={condition.operator || ""}
               onValueChange={(value) =>
-                handleSelectChange(value, index, "field", "orConditions")
-              }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Choose field..." />
-              </SelectTrigger>
-              <SelectContent className="min-w-full">
-                <SelectItem value="field1">Field 1</SelectItem>
-                <SelectItem value="field2">Field 2</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select
-              value={condition.condition || ""}
-              onValueChange={(value) =>
-                handleSelectChange(value, index, "condition", "orConditions")
+                handleSelectChange(value, index, "operator", "orConditions")
               }
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Choose condition..." />
               </SelectTrigger>
               <SelectContent className="min-w-full">
-                <SelectItem value="equals">Equals</SelectItem>
+                <SelectItem value="does_not_contain">
+                  Does Not Contain
+                </SelectItem>
                 <SelectItem value="contains">Contains</SelectItem>
+                <SelectItem value="start_with">Start With</SelectItem>
+                <SelectItem value="not_start_with">Not Start With</SelectItem>
+                <SelectItem value="ends_with">Ends With</SelectItem>
+                <SelectItem value="greater">Greater</SelectItem>
+                <SelectItem value="less">Less</SelectItem>
+                <SelectItem value="after">After</SelectItem>
+                <SelectItem value="before">Before</SelectItem>
+                <SelectItem value="equals">Equals</SelectItem>
+                <SelectItem value="is_true">Is True</SelectItem>
+                <SelectItem value="is_false">Is False</SelectItem>
+                <SelectItem value="does_not_exist">Does Not Exist</SelectItem>
+                <SelectItem value="exists">Exists</SelectItem>
               </SelectContent>
             </Select>
             <Input
               type="text"
-              name="text"
+              name="value"
               onChange={(e) => handleChange(e, index, "orConditions")}
               placeholder="Enter Text ..."
-              value={condition.text || ""}
+              value={condition.value || ""}
               id={`text-or-${index}`}
             />
           </div>
@@ -217,7 +247,10 @@ const FilterForm: React.FC = ({
         </button>
       </div>
 
-      <button onClick={handleSubmit} className="bg-primary flex items-center justify-center gap-2 text-white px-4 py-3 rounded mt-6 w-full text-center">
+      <button
+        onClick={handleSubmit}
+        className="bg-primary flex items-center justify-center gap-2 text-white px-4 py-3 rounded mt-6 w-full text-center"
+      >
         Submit
       </button>
     </div>

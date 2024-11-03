@@ -19,23 +19,27 @@ import StepForm from "@/components/Form/leadGenerateForm/StepForm";
 import { useFetchPost } from "@/Hooks/useFetch";
 
 interface FilterCondition {
-  field: string;
-  condition: string;
-  text: string;
+  key: string;
+  operator: string;
+  value: string;
+  is_and:boolean;
+  is_or:boolean;
 }
 
 const EditorSetupHooks: React.FC = () => {
   const [openSheet, setOpenSheet] = useState(false);
   const [conditions, setConditions] = useState<FilterCondition[]>([
-    { field: "", condition: "", text: "" },
+    { key: "", operator: "", value: "" , is_and: false,is_or: true },
   ]);
   const [orConditions, setOrConditions] = useState<FilterCondition[]>([
-    { field: "", condition: "", text: "" },
+    { key: "", operator: "", value: "" , is_and: false,is_or: true },
   ]);
-
+  
   const { steps, addStep } = useEditorSetupHooks();
   const [selectedStep, setSelectedStep] = useState<Step | null>(null); // State for the selected step object
-
+  
+  const createActionUrl = `http://18.221.246.228:9000/webhook/api/v1/create-action`;
+  const createFilterUrl = `http://18.221.246.228:9000/webhook/api/v1/create-filter`;
   const handleStepClick = (step: Step) => {
     setSelectedStep(step); // Set the selected step object
     setOpenSheet(true);
@@ -90,6 +94,8 @@ const EditorSetupHooks: React.FC = () => {
             <SheetDescription>
               {selectedStep && (
                 <StepForm
+                  createActionUrl={createActionUrl}
+                  createFilterUrl={createFilterUrl}
                   type={selectedStep.type}
                   conditions={conditions}
                   setConditions={setConditions}

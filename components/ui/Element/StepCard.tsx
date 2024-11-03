@@ -29,7 +29,7 @@ const StepCard: FC<StepCardProps> = ({
 }) => {
   return (
     <div className="relative">
-      <div className="flex justify-between gap-3 items-start min-w-80 p-4 border rounded-lg shadow-md bg-white">
+      <div className="flex justify-between gap-3 items-start min-w-80 p-8 px-4 cursor-pointer border rounded-lg shadow-md bg-white">
         <div className="flex flex-col items-center w-full">
           <div className="absolute -top-4 -left-4 bg-primary rounded-full h-6 w-6 flex items-center justify-center text-xs font-bold text-white">
             {number}

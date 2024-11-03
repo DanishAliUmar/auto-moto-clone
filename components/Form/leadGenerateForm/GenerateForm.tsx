@@ -6,21 +6,25 @@ import { Copy } from "lucide-react";
 import React, { useEffect, useState } from "react";
 const GenerateForm = () => {
   const [value, setLocalItem, getLocalItem] = useLocalStorage();
-  const webhookUrl = getLocalItem("webhook_url");
+  const webhookDetail = getLocalItem("webhook_detail");
+  const webhookUrl = webhookDetail?.webhook_url
   const [isGenerated, setIsGenerated] = useState(webhookUrl ? true : false);
   const [generatedUrl, setGeneratedUrl] = useState("");
   const apiUrl = 'http://18.221.246.228:9000/webhook/api/v1/generate-url';
 
-  const { data, loading, error } = useFetchGet<any>(apiUrl);
 
+console.log(webhookUrl);
+
+
+  const { data, loading, error } = useFetchGet<any>(apiUrl);
 
   const handleGenerate = () => {
     if (!isGenerated) {
       setIsGenerated(true);
       setGeneratedUrl(data.response_data.data.webhook_url)
       setLocalItem({
-        key: "webhook_url",
-        value: data.response_data.data.webhook_url
+        key: "webhook_detail",
+        value: {webhook_url:data.response_data.data.webhook_url, webhook_id: data.response_data.data.id}
       });
     }
   };

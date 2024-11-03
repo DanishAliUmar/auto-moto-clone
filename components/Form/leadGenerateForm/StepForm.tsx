@@ -7,18 +7,42 @@ interface StepFormProps {
   type: "generate" | "filter" | "leadConnector";
 }
 
-const StepForm: React.FC<StepFormProps> = ({ type,  conditions,
+const StepForm: React.FC<StepFormProps> = ({
+  type,
+  conditions,
   setConditions,
   orConditions,
-  setOrConditions,  }) => {
-
+  setOrConditions,
+  leadGenerationData,
+  setLeadGenerationData,
+  updateFilterUrl,
+  createFilterUrl,
+  updateActionUrl,
+  createActionUrl
+}) => {
   switch (type) {
     case "generate":
-      return <GenerateForm/>;
+      return <GenerateForm />;
     case "filter":
-      return <FilterForm  conditions={conditions} setConditions={setConditions} orConditions={orConditions} setOrConditions={setOrConditions}/>;
+      return (
+        <FilterForm
+          conditions={conditions}
+          setConditions={setConditions}
+          orConditions={orConditions}
+          setOrConditions={setOrConditions}
+          createFilterUrl={createFilterUrl}
+          updateFilterUrl={updateFilterUrl}
+        />
+      );
     case "leadConnector":
-      return <LeadConnectorForm/>;
+      return (
+        <LeadConnectorForm
+          updateActionUrl={updateActionUrl}
+          createActionUrl={createActionUrl}
+          leadGenerationData={leadGenerationData}
+          setLeadGenerationData={setLeadGenerationData}
+        />
+      );
     default:
       return null;
   }
