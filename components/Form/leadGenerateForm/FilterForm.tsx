@@ -9,6 +9,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useFetchPost } from "@/Hooks/useFetch";
+import {getLocalItem} from "@/Hooks/useLocalStorage";
+const localWebhook_url =getLocalItem('webhook_url')
+const createFilterUrl = `http://127.0.0.1:8000/webhook/api/v1/create-filter`;
 
 const FilterForm: React.FC = ({
   conditions,
@@ -16,12 +20,25 @@ const FilterForm: React.FC = ({
   orConditions,
   setOrConditions,
 }) => {
+
+  const { data, loading, error, postData } = useFetchPost<{
+    success: boolean;
+    message: string;
+  }>(createFilterUrl);
+
+  const handleSubmit = () => {
+    postData({
+      webhoook_id: localWebhook_url,
+      webhook_filters: [...conditions, ...orConditions}]
+      });
+  };
+
   const handleAddCondition = () => {
-    setConditions([...conditions, { field: "", condition: "", text: "" }]);
+    setConditions([...conditions, { field: "", condition: "", text: "", "is_and": true,"is_or": false }]);
   };
 
   const handleOrCondition = () => {
-    setOrConditions([...orConditions, { field: "", condition: "", text: "" }]);
+    setOrConditions([...orConditions, { field: "", condition: "", text: "", "is_and": false,"is_or": true }]);
   };
 
   const handleRemoveCondition = (index: number) => {
@@ -200,7 +217,7 @@ const FilterForm: React.FC = ({
         </button>
       </div>
 
-      <button className="bg-primary flex items-center justify-center gap-2 text-white px-4 py-3 rounded mt-6 w-full text-center">
+      <button onClick={handleSubmit} className="bg-primary flex items-center justify-center gap-2 text-white px-4 py-3 rounded mt-6 w-full text-center">
         Submit
       </button>
     </div>

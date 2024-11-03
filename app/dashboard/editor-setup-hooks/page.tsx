@@ -4,7 +4,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import StepCard from "@/components/ui/Element/StepCard";
 import { Switch } from "@/components/ui/switch";
-import React, { useState } from "react"; // Import useState
+import React, { useEffect, useState } from "react"; // Import useState
 import useEditorSetupHooks from "@/Utility/Helpers/useEditorSetupHooks";
 import {
   Sheet,
@@ -16,50 +16,63 @@ import {
 } from "@/components/ui/sheet";
 import { Filter } from "lucide-react";
 import StepForm from "@/components/Form/leadGenerateForm/StepForm";
+import { useFetchPost } from "@/Hooks/useFetch";
+
+interface FilterCondition {
+  field: string;
+  condition: string;
+  text: string;
+}
 
 const EditorSetupHooks: React.FC = () => {
+  const [openSheet, setOpenSheet] = useState(false);
+  const [conditions, setConditions] = useState<FilterCondition[]>([
+    { field: "", condition: "", text: "" },
+  ]);
+  const [orConditions, setOrConditions] = useState<FilterCondition[]>([
+    { field: "", condition: "", text: "" },
+  ]);
+
   const { steps, addStep } = useEditorSetupHooks();
   const [selectedStep, setSelectedStep] = useState<Step | null>(null); // State for the selected step object
 
   const handleStepClick = (step: Step) => {
     setSelectedStep(step); // Set the selected step object
+    setOpenSheet(true);
   };
 
   return (
     <DashboardLayout>
-      <Sheet>
-        <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between gap-2 border-b p-4 pt-0 pb-2">
-            <Switch />
-            <Button className="text-xs bg-black px-6 h-8">Publish</Button>
-          </div>
-          <div className="flex items-start flex-1 justify-center overflow-y-auto">
-            <div className="flex flex-col items-center py-10">
-              <div className="relative flex flex-col items-center space-y-6">
-                {steps.map((step, index) => (
-                  <div
-                    key={index}
-                    className="relative flex flex-col items-center"
-                  >
-                    <SheetTrigger onClick={() => handleStepClick(step)}>
-                      {" "}
-                      {/* Update the onClick event */}
-                      <StepCard
-                        number={index + 1}
-                        icon={step.icon}
-                        title={step.title}
-                        description={step.description}
-                        // onAddStep={() => addStep(index)}
-                        isLast={index === steps.length - 1} // Pass isLast prop
-                      />
-                    </SheetTrigger>
-                  </div>
-                ))}
-              </div>
+      <div className="flex flex-col h-full">
+        <div className="flex items-center justify-between gap-2 border-b p-4 pt-0 pb-2">
+          <Switch />
+          <Button className="text-xs bg-black px-6 h-8">Publish</Button>
+        </div>
+        <div className="flex items-start flex-1 justify-center overflow-y-auto">
+          <div className="flex flex-col items-center py-10">
+            <div className="relative flex flex-col items-center space-y-6">
+              {steps.map((step, index) => (
+                <div
+                  key={index}
+                  className="relative flex flex-col items-center"
+                  onClick={() => handleStepClick(step)}
+                >
+                  {/* Update the onClick event */}
+                  <StepCard
+                    number={index + 1}
+                    icon={step.icon}
+                    title={step.title}
+                    description={step.description}
+                    // onAddStep={() => addStep(index)}
+                    isLast={index === steps.length - 1} // Pass isLast prop
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </div>
-
+      </div>
+      <Sheet open={openSheet} onOpenChange={setOpenSheet}>
         <SheetContent className="sm:min-w-[600px]">
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
@@ -75,7 +88,15 @@ const EditorSetupHooks: React.FC = () => {
               {selectedStep?.title || ""}
             </SheetTitle>
             <SheetDescription>
-              {selectedStep && <StepForm type={selectedStep.type} />}
+              {selectedStep && (
+                <StepForm
+                  type={selectedStep.type}
+                  conditions={conditions}
+                  setConditions={setConditions}
+                  orConditions={orConditions}
+                  setOrConditions={setOrConditions}
+                />
+              )}
             </SheetDescription>
           </SheetHeader>
         </SheetContent>
