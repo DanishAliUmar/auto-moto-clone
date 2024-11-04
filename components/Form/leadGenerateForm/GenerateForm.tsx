@@ -8,11 +8,15 @@ import React, { useEffect, useState } from "react";
 interface GenerateFormProps {
   createFilterUrl?: string;
   updateFilterUrl?: string;
+
+  setStepsDisable: React.Dispatch<React.SetStateAction<any>>;
 }
 
 const GenerateForm: React.FC<GenerateFormProps> = ({
   createFilterUrl,
   updateFilterUrl,
+
+  setStepsDisable,
 }) => {
 
   const [value, setLocalItem, getLocalItem] = useLocalStorage();
@@ -34,6 +38,8 @@ const GenerateForm: React.FC<GenerateFormProps> = ({
   
    useEffect(() => {
     if (data) {
+      setStepsDisable(false)
+
       const webhookData = data.response_data.data;
       
       // Only set generated URL if it has changed

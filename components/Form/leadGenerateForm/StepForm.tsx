@@ -16,6 +16,8 @@ interface StepFormProps {
   createActionUrl?: string;
   updateFilterUrl?: string;
   updateActionUrl?: string;
+
+  setStepsDisable: React.Dispatch<React.SetStateAction<any>>;
 }
 
 const StepForm: React.FC<StepFormProps> = ({
@@ -30,12 +32,14 @@ const StepForm: React.FC<StepFormProps> = ({
   createActionUrl,
   updateFilterUrl,
   updateActionUrl,
+  setStepsDisable,
 }) => {
 
   switch (type) {
     case "generate":
       return (
         <GenerateForm
+          setStepsDisable={setStepsDisable}
           createFilterUrl={createFilterUrl}
           updateFilterUrl={updateFilterUrl}
         />

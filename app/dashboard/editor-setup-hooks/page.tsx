@@ -70,14 +70,15 @@ const EditorSetupHooks: React.FC = () => {
   // DISABLE OTHER STEPS WHEN 1st STEP URL IS NOT GENERATED
   
   const [stepsDisable, setStepsDisable] = useState(false);
-
+    const [webHookDetail, setWebHookDetail] = useState(null);
   useEffect(() => {
-    const webhookDetail = localStorage.getItem("webhook_detail") || null;
+    const state = localStorage.getItem("webhook_detail") || null;
     
-    if (!webhookDetail) {
+    if (!state) {
       setStepsDisable(true);
     } else {
       setStepsDisable(false);
+      setWebHookDetail(JSON.parse(state));
     }
   }, []);
 
@@ -153,6 +154,8 @@ const EditorSetupHooks: React.FC = () => {
                   setConditions={setConditions}
                   orConditions={orConditions}
                   setOrConditions={setOrConditions}
+
+                  setStepsDisable={setStepsDisable}
                 />
               )}
             </SheetDescription>
