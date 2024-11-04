@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 const Page = () => {
   const router = useRouter();
   const createWebHook = () => {
+    localStorage.removeItem("webhook_detail");
     router.push(`/dashboard/editor-setup-hooks/`);
   };
   const { data, loading } = useWebHookList();

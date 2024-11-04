@@ -17,6 +17,7 @@ import {
 import { Filter } from "lucide-react";
 import StepForm from "@/components/Form/leadGenerateForm/StepForm";
 import { useFetchPost } from "@/Hooks/useFetch";
+import useLocalStorage from "@/Hooks/useLocalStorage";
 
 interface FilterCondition {
   key: string;
@@ -37,13 +38,48 @@ const EditorSetupHooks: React.FC = () => {
   
   const { steps, addStep } = useEditorSetupHooks();
   const [selectedStep, setSelectedStep] = useState<Step | null>(null); // State for the selected step object
-  
-  const createActionUrl = `http://18.221.246.228:9000/webhook/api/v1/create-action`;
-  const createFilterUrl = `http://18.221.246.228:9000/webhook/api/v1/create-filter`;
+
   const handleStepClick = (step: Step) => {
     setSelectedStep(step); // Set the selected step object
     setOpenSheet(true);
   };
+
+  const [webhookUrl, setLocalItem, getLocalItem] = useLocalStorage("webhook_url");
+  const localWebhook_url = getLocalItem("webhook_detail");
+
+  //LeadFormData
+    const [leadGenerationData, setLeadGenerationData] = useState({
+      webhook_id:  localWebhook_url?.webhook_id?  localWebhook_url?.webhook_id : '',
+      email: "",
+      phone: "",
+      first_name: "",
+      last_name: "",
+      creation_date: "",
+      total_cost: "",
+      is_paid: false,
+      is_invoice: false,
+    });
+
+
+  // ================ CREATE FILTER & ACTION FUNCTIONALITY =================
+  const createActionUrl = `http://18.221.246.228:9000/webhook/api/v1/create-action`;
+  const createFilterUrl = `http://18.221.246.228:9000/webhook/api/v1/create-filter`;
+
+
+
+  // DISABLE OTHER STEPS WHEN 1st STEP URL IS NOT GENERATED
+  
+  const [stepsDisable, setStepsDisable] = useState(false);
+
+  useEffect(() => {
+    const webhookDetail = localStorage.getItem("webhook_detail") || null;
+    
+    if (!webhookDetail) {
+      setStepsDisable(true);
+    } else {
+      setStepsDisable(false);
+    }
+  }, []);
 
   return (
     <DashboardLayout>
@@ -55,29 +91,36 @@ const EditorSetupHooks: React.FC = () => {
         <div className="flex items-start flex-1 justify-center overflow-y-auto">
           <div className="flex flex-col items-center py-10">
             <div className="relative flex flex-col items-center space-y-6">
-              {steps.map((step, index) => (
-                <div
-                  key={index}
-                  className="relative flex flex-col items-center"
-                  onClick={() => handleStepClick(step)}
-                >
-                  {/* Update the onClick event */}
-                  <StepCard
-                    number={index + 1}
-                    icon={step.icon}
-                    title={step.title}
-                    description={step.description}
-                    // onAddStep={() => addStep(index)}
-                    isLast={index === steps.length - 1} // Pass isLast prop
-                  />
-                </div>
-              ))}
+            {steps.map((step, index) => {
+    const isDisabled = stepsDisable && index !== 0; // Check if the step is disabled
+
+    return (
+      <div
+        key={index}
+        className={`relative flex flex-col items-center ${isDisabled ? "transition-all opacity-50 cursor-not-allowed" : ""}`}
+        onClick={() => {
+          if (!isDisabled) {
+            handleStepClick(step); // Only call if not disabled
+          }
+        }}
+      >
+        <StepCard
+          className={isDisabled ? "!cursor-not-allowed" : ""} // Apply cursor class based on disable state
+          number={index + 1}
+          icon={step.icon}
+          title={step.title}
+          description={step.description}
+          isLast={index === steps.length - 1} // Pass isLast prop
+        />
+      </div>
+    );
+  })}
             </div>
           </div>
         </div>
       </div>
       <Sheet open={openSheet} onOpenChange={setOpenSheet}>
-        <SheetContent className="sm:min-w-[600px]">
+        <SheetContent className={`sm:min-w-[600px]`}>
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
               <div className=" bg-primary p-2 rounded-lg border-primary stroke-white">
@@ -94,9 +137,18 @@ const EditorSetupHooks: React.FC = () => {
             <SheetDescription>
               {selectedStep && (
                 <StepForm
+                  // ======= Create URLs
                   createActionUrl={createActionUrl}
                   createFilterUrl={createFilterUrl}
+                  // ======= 
+                  updateFilterUrl={null}
+                  updateActionUrl={null}
+
+                  leadGenerationData={leadGenerationData}
+                  setLeadGenerationData={setLeadGenerationData}
+
                   type={selectedStep.type}
+              
                   conditions={conditions}
                   setConditions={setConditions}
                   orConditions={orConditions}

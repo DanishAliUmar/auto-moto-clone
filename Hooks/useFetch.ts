@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
 import axios, { AxiosError } from "axios";
 
-const useFetchGet = <T>(url: string) => {
+const useFetchGet = <T>(url: string, shouldFetch = true) => {
   const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!shouldFetch) {
+      setLoading(false); // Ensure loading is false if skipping fetch
+      return;
+    }
+
     const fetchData = async () => {
       setLoading(true);
       setError(null); // Reset error state on new fetch
@@ -22,7 +27,7 @@ const useFetchGet = <T>(url: string) => {
     };
 
     fetchData();
-  }, [url]);
+  }, [url, shouldFetch]);
 
   return { data, loading, error };
 };

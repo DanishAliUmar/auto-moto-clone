@@ -27,6 +27,14 @@ interface WebHooksTableProps {
   loading: boolean;
 }
 
+const Spinner = () => {
+  return (
+    <div className="flex justify-center items-center h-32">
+      <div className="animate-spin h-16 w-16 border-4 border-t-4 border-primary border-t-transparent rounded-full"></div>
+    </div>
+  );
+};
+
 const WebHooksTable: React.FC<WebHooksTableProps> = ({ data, loading }) => {
   const router = useRouter();
   const WebHooksDetail = (id: string) => {
@@ -47,7 +55,15 @@ const WebHooksTable: React.FC<WebHooksTableProps> = ({ data, loading }) => {
             </tr>
           </thead>
           <tbody className="divide-y text-xs">
-            {data?.data?.length > 0 ? (
+            {
+            loading ? (
+              <tr>
+                <td colSpan="5" className="py-10 text-center">
+                  <Spinner />
+                </td>
+              </tr>
+            ) :
+            data?.data?.length > 0 ? (
               data.data?.map((item, index) => (
                 <tr
                   key={index}

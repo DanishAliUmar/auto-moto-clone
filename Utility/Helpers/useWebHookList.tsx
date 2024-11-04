@@ -4,7 +4,7 @@ const useWebHookList = () => {
   const { data, loading, error } = useFetchGet<any>(apiUrl);
 
   return {
-    data,loading, error
+    data,loading,error
   };
 };
 

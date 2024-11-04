@@ -1,3 +1,4 @@
+
 import { FC } from "react";
 import { CircleDashed, Edit, Edit2, MoreVertical, PlusCircleIcon, Trash2 } from "lucide-react";
 
@@ -11,6 +12,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface StepCardProps {
+  className: string;
+
   number: number;
   icon: React.ReactNode;
   title: string;
@@ -20,6 +23,7 @@ interface StepCardProps {
 }
 
 const StepCard: FC<StepCardProps> = ({
+  className,
   number,
   icon,
   title,
@@ -27,9 +31,10 @@ const StepCard: FC<StepCardProps> = ({
   // onAddStep,
   isLast,
 }) => {
+
   return (
-    <div className="relative">
-      <div className="flex justify-between gap-3 items-start min-w-80 p-8 px-4 cursor-pointer border rounded-lg shadow-md bg-white">
+    <div className={"relative"}>
+      <div className={`flex justify-between gap-3 items-start min-w-80 p-8 px-4 cursor-pointer border rounded-lg shadow-md bg-white ${className}`}>
         <div className="flex flex-col items-center w-full">
           <div className="absolute -top-4 -left-4 bg-primary rounded-full h-6 w-6 flex items-center justify-center text-xs font-bold text-white">
             {number}

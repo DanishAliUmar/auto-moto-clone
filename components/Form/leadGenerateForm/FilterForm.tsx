@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -9,21 +9,47 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useFetchPost } from "@/Hooks/useFetch";
+import { useFetchPost, useFetchPut } from "@/Hooks/useFetch";
 import useLocalStorage from "@/Hooks/useLocalStorage";
-const createFilterUrl = `http://18.221.246.228:9000/webhook/api/v1/create-filter`;
 
-const FilterForm: React.FC = ({
+// Toast for sucess and error
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+
+
+interface Condition {
+  key: string;
+  value: string;
+  operator: string;
+  is_and: boolean;
+  is_or: boolean;
+}
+
+interface FilterFormProps {
+  conditions: Condition[];
+  setConditions: React.Dispatch<React.SetStateAction<Condition[]>>;
+  orConditions: Condition[];
+  setOrConditions: React.Dispatch<React.SetStateAction<Condition[]>>;
+  createFilterUrl?: string;
+  updateFilterUrl?: string;
+}
+
+const FilterForm: React.FC<FilterFormProps> = ({
   conditions,
   setConditions,
   orConditions,
   setOrConditions,
-  
+
+  createFilterUrl,
+  updateFilterUrl,
 }) => {
-  const { data, loading, error, postData } = useFetchPost<{
-    success: boolean;
-    message: string;
-  }>(createFilterUrl);
+
+
+  const { data, loading, error, postData } = createFilterUrl
+  ? useFetchPost<{ success: boolean; message: string }>(createFilterUrl)
+  : useFetchPut<{ success: boolean; message: string }>(updateFilterUrl || "");
+  
 
   const [webhookUrl, , getLocalItem] = useLocalStorage("webhook_url");
   const localWebhook_url = getLocalItem("webhook_detail");
@@ -99,8 +125,19 @@ const FilterForm: React.FC = ({
       : setOrConditions(updatedConditions);
   };
 
+
+    // Display a toast notification based on the success or failure response
+    useEffect(() => {
+      if (data && data.success) {
+        toast.success(data.message || "Request completed successfully!");
+      } else if (error) {
+        toast.error(`Error: ${error}`);
+      }
+    }, [data, error]);
+
   return (
     <div className="p-4 overflow-y-auto max-h-[85vh]">
+      <ToastContainer />
       <h2 className="text-xl font-bold mb-4">Setup Filter</h2>
       <div className="space-y-5">
         {conditions.map((condition, index) => (

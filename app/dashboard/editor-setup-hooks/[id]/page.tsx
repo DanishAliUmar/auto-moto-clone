@@ -34,8 +34,7 @@ interface FilterCondition {
 }
 
 const Page = () => {
-  const updateActionUrl = `http://18.221.246.228:9000/webhook/api/v1/update-action`;
-  const updateFilterUrl = `http://18.221.246.228:9000/webhook/api/v1/update-filter`;
+
   const [openSheet, setOpenSheet] = useState(false);
   const [webHookDetail, setWebHookDetail] = useState(null);
   
@@ -48,8 +47,8 @@ const Page = () => {
   ]);
 
 
-  const [webhookUrl, , getLocalItem] = useLocalStorage("webhook_url");
-  const localWebhook_url = getLocalItem("webhook_detail");
+  const [webhookUrl, setLocalItem, getLocalItem] = useLocalStorage("webhook_url");
+  const localWebhook_url = getLocalItem("webhook_update_detail");
 
   //LeadFormData
     const [leadGenerationData, setLeadGenerationData] = useState({
@@ -64,6 +63,8 @@ const Page = () => {
       is_invoice: false,
     });
 
+    
+
   const params = useParams();
   const apiUrl = `http://18.221.246.228:9000/webhook/api/v1/get-webhook-details?webhook_id=${params.id}`;
 
@@ -72,6 +73,15 @@ const Page = () => {
   useEffect(() => {
     if (data) {
       setWebHookDetail(data);
+
+      setLocalItem({
+        key: "webhook_update_detail",
+        value: {
+          webhook_url:data.Response_data.data.webhook_url,
+          webhook_id: data.Response_data.data.id
+        }
+      });
+      
     }
   }, [data]);
 
@@ -93,6 +103,12 @@ const Page = () => {
     setSelectedStep(step);
     setOpenSheet(true);
   };
+
+
+  // ================ UPDATE FILTER & ACTION FUNCTIONALITY =================
+  const updateActionUrl = `http://18.221.246.228:9000/webhook/api/v1/update-action`;
+  const updateFilterUrl = `http://18.221.246.228:9000/webhook/api/v1/update-filter`;
+
   return (
     <DashboardLayout>
       <div className="flex flex-col h-full">
@@ -105,10 +121,7 @@ const Page = () => {
           <div className="flex flex-col items-center py-10">
             <div className="relative flex flex-col items-center space-y-6">
               {steps.map((step, index) => (
-                <div
-                  key={index}
-                  className="relative flex flex-col items-center"
-                >
+                <div key={index} className="relative flex flex-col items-center">
                   <div onClick={() => handleStepClick(step)}>
                     <StepCard
                       number={index + 1}
@@ -142,12 +155,21 @@ const Page = () => {
             <SheetDescription>
               {selectedStep && (
                 <StepForm
+                createActionUrl={null}
+                createFilterUrl={null}
+                  // ======= Update URLs
                   updateActionUrl={updateActionUrl}
                   updateFilterUrl={updateFilterUrl}
+                  // =======
+
+                  webHookDetail={webHookDetail}
+
                   leadGenerationData={leadGenerationData}
                   setLeadGenerationData={setLeadGenerationData}
+
                   type={selectedStep.type}
-                  webHookDetail={webHookDetail}
+                  status={"update"}
+
                   conditions={conditions}
                   setConditions={setConditions}
                   orConditions={orConditions}

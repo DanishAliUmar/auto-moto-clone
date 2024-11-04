@@ -61,7 +61,13 @@ const Sidebar = ({ expandSidebar, setExpandSidebar }: SidebarProps) => {
       <div className="space-y-3">
         {routes.map((item) => (
           <Link key={item.id} href={item.link}>
-            <div className={`flex items-center h-11 p-3 gap-5 transition-all rounded-lg hover:bg-secondary-foreground hover:text-white `}>
+            <div  onClick={() => {
+              if (item.link === '/dashboard/editor-setup-hooks') {
+                localStorage.removeItem("webhook_detail");
+              } else {
+                console.log("No action for this link");
+              }
+            }} className={`flex items-center h-11 p-3 gap-5 transition-all rounded-lg hover:bg-secondary-foreground hover:text-white `}>
               <span className="flex items-center justify-center">
                 {item.icon}
               </span>
